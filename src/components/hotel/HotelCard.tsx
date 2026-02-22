@@ -24,6 +24,7 @@ export function HotelCard({ hotel, matchedRooms }: { hotel: Hotel; matchedRooms:
 
   return (
     <div
+      id={`hotel-${hotel.id}`}
       className={`bg-white rounded-xl border transition-all ${
         isHighlighted ? 'border-blue-400 ring-2 ring-blue-100' : 'border-gray-200 hover:border-gray-300'
       }`}
