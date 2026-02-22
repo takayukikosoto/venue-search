@@ -76,11 +76,11 @@ export function filterHotels(hotels: Hotel[], filter: FilterState): FilteredResu
         if (filter.ceilingMin != null && (room.ceilingHeightM == null || room.ceilingHeightM < filter.ceilingMin)) return false
         if (filter.ceilingMax != null && (room.ceilingHeightM == null || room.ceilingHeightM > filter.ceilingMax)) return false
 
-        if (filter.capacityMin != null || filter.capacityMax != null) {
+        if ((filter.capacityMin != null && filter.capacityMin > 0) || (filter.capacityMax != null && filter.capacityMax > 0)) {
           const cap = getMaxCapacity(room, filter.capacityType)
           if (cap === 0) return false
-          if (filter.capacityMin != null && cap < filter.capacityMin) return false
-          if (filter.capacityMax != null && cap > filter.capacityMax) return false
+          if (filter.capacityMin != null && filter.capacityMin > 0 && cap < filter.capacityMin) return false
+          if (filter.capacityMax != null && filter.capacityMax > 0 && cap > filter.capacityMax) return false
         }
 
         if (filter.hasDivisions === true && room.divisions.length === 0) return false

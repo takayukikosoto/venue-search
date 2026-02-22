@@ -19,7 +19,10 @@ function NumberInput({ value, onChange, placeholder }: {
     <input
       type="number"
       value={value ?? ''}
-      onChange={e => onChange(e.target.value ? Number(e.target.value) : undefined)}
+      onChange={e => {
+        const n = e.target.value ? Number(e.target.value) : undefined
+        onChange(n && n > 0 ? n : undefined)
+      }}
       placeholder={placeholder}
       className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
     />
@@ -110,9 +113,7 @@ export function FilterPanel({ className = '' }: { className?: string }) {
                 className={`px-2 py-0.5 text-xs rounded border transition-colors ${
                   isSelected && isActive
                     ? 'bg-blue-600 text-white border-blue-600'
-                    : isSelected
-                      ? 'bg-gray-100 text-gray-900 border-gray-400 font-medium'
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
+                    : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
                 }`}
               >
                 {ct.label}
