@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Loader2, Map, List, BarChart3, SlidersHorizontal, X, SearchX } from 'lucide-react'
 import { useVenueStore } from '../store/venueStore'
 import { Header } from '../components/layout/Header'
@@ -18,7 +18,25 @@ export function SearchPage() {
   const comparisonRooms = useVenueStore(s => s.comparisonRooms)
   const viewMode = useVenueStore(s => s.viewMode)
   const setViewMode = useVenueStore(s => s.setViewMode)
+  const hotels = useVenueStore(s => s.hotels)
+  const filter = useVenueStore(s => s.filter)
+  const resetFilters = useVenueStore(s => s.resetFilters)
   const [filterOpen, setFilterOpen] = useState(false)
+
+  const totalRooms = useMemo(() => results.reduce((s, r) => s + r.matchedRooms.length, 0), [results])
+  const totalHotels = useMemo(() => hotels.length, [hotels])
+  const isFiltered = useMemo(() => {
+    return filter.keyword !== '' ||
+      filter.regions.length > 0 ||
+      filter.areaMin != null ||
+      filter.areaMax != null ||
+      filter.ceilingMin != null ||
+      filter.ceilingMax != null ||
+      filter.capacityMin != null ||
+      filter.capacityMax != null ||
+      filter.hasDivisions !== null ||
+      filter.hasUsageRecords !== null
+  }, [filter])
 
   useEffect(() => {
     loadHotels()
@@ -42,11 +60,16 @@ export function SearchPage() {
       <div className="lg:hidden flex items-center gap-2 px-4 py-2 bg-white border-b border-gray-200">
         <button
           onClick={() => setFilterOpen(true)}
-          className="flex items-center gap-1 px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50"
+          className={`flex items-center gap-1 px-3 py-1.5 text-xs border rounded-lg ${
+            isFiltered ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 hover:bg-gray-50'
+          }`}
         >
           <SlidersHorizontal className="w-3.5 h-3.5" />
-          フィルタ
+          フィルタ{isFiltered && ' ON'}
         </button>
+        <span className="text-xs text-gray-500">
+          {results.length}/{totalHotels}施設 · {totalRooms}室
+        </span>
         <div className="flex-1" />
         <div className="flex border border-gray-300 rounded-lg overflow-hidden">
           <button
@@ -104,6 +127,14 @@ export function SearchPage() {
             {/* List */}
             <div className={`flex-1 overflow-y-auto ${viewMode === 'map' ? 'hidden lg:block' : ''}`}>
               <div className="p-4 space-y-3" style={{ paddingBottom: comparisonRooms.length > 0 ? '80px' : '16px' }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-500">
+                    {isFiltered ? `${results.length}/${totalHotels}施設 · ${totalRooms}室（フィルタ中）` : `${totalHotels}施設 · ${totalRooms}室`}
+                  </span>
+                  {isFiltered && (
+                    <button onClick={resetFilters} className="text-xs text-blue-600 hover:text-blue-800">リセット</button>
+                  )}
+                </div>
                 {results.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 text-gray-400">
                     <SearchX className="w-12 h-12 mb-3" />

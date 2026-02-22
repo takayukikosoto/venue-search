@@ -100,19 +100,25 @@ export function FilterPanel({ className = '' }: { className?: string }) {
       <section>
         <h3 className="text-xs font-semibold text-gray-500 mb-2">収容人数</h3>
         <div className="flex flex-wrap gap-1 mb-2">
-          {capacityTypes.map(ct => (
-            <button
-              key={ct.value}
-              onClick={() => setCapacityType(ct.value)}
-              className={`px-2 py-0.5 text-xs rounded border transition-colors ${
-                filter.capacityType === ct.value
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
-              }`}
-            >
-              {ct.label}
-            </button>
-          ))}
+          {capacityTypes.map(ct => {
+            const isActive = filter.capacityMin != null || filter.capacityMax != null
+            const isSelected = filter.capacityType === ct.value
+            return (
+              <button
+                key={ct.value}
+                onClick={() => setCapacityType(ct.value)}
+                className={`px-2 py-0.5 text-xs rounded border transition-colors ${
+                  isSelected && isActive
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : isSelected
+                      ? 'bg-gray-100 text-gray-900 border-gray-400 font-medium'
+                      : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
+                }`}
+              >
+                {ct.label}
+              </button>
+            )
+          })}
         </div>
         <div className="flex items-center gap-2">
           <NumberInput value={filter.capacityMin} onChange={setCapacityMin} placeholder="下限" />
