@@ -74,59 +74,63 @@ export const useVenueStore = create<VenueState>((set, get) => ({
     if (venuesResult.error) throw venuesResult.error
     if (usageResult.error) throw usageResult.error
 
-    const hotels: Hotel[] = venuesResult.data.map((v: Record<string, unknown>) => ({
-      id: v.id,
-      name: v.name,
-      address: v.address,
-      region: v.region,
-      lat: v.lat,
-      lng: v.lng,
-      usageCount: v.usage_count,
-      totalRoomCount: v.total_room_count,
-      practicalInfo: v.practical_info as Hotel['practicalInfo'],
-      rooms: ((v.rooms as Record<string, unknown>[]) ?? []).map((r) => ({
-        id: r.id,
-        name: r.name,
-        floor: r.floor,
-        areaSqm: r.area_sqm,
-        ceilingHeightM: r.ceiling_height_m,
-        capacity: {
-          theater: r.capacity_theater,
-          school: r.capacity_school,
-          banquet: r.capacity_banquet,
-          standing: r.capacity_standing,
-        },
-        divisions: r.divisions as Room['divisions'],
-        equipment: (r.extra as Record<string, unknown>)?.equipment as string | undefined,
-        features: (r.extra as Record<string, unknown>)?.features as string | undefined,
-        loadingDock: (r.extra as Record<string, unknown>)?.loadingDock as string | undefined,
-        usageCount: r.usage_count,
-        typicalSeatCount: (r.extra as Record<string, unknown>)?.typicalSeatCount != null
-          ? Number((r.extra as Record<string, unknown>).typicalSeatCount) : undefined,
-        typicalUse: (r.extra as Record<string, unknown>)?.typicalUse as string | undefined,
-      })) as Room[],
-    }))
-
-    const usageRecords: UsageRecord[] = usageResult.data.map((u: Record<string, unknown>) => {
-      const details = (u.details ?? {}) as Record<string, unknown>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const hotels: Hotel[] = venuesResult.data.map((v: any) => {
+      const extra = (r: any) => r.extra ?? {}
       return {
-        id: u.id as string,
-        hotelName: u.hotel_name as string,
-        hotelId: u.venue_id as string | undefined,
-        roomName: u.room_name as string,
-        roomId: u.room_id as string | undefined,
-        seminarName: u.seminar_name as string,
-        date: u.date as string | undefined,
-        year: u.year as number | undefined,
-        sourceFile: u.source_file as string,
-        floor: details.floor as string | undefined,
-        seatCount: details.seatCount != null ? Number(details.seatCount) : undefined,
-        areaSqm: details.areaSqm != null ? Number(details.areaSqm) : undefined,
-        ceilingHeightM: details.ceilingHeightM != null ? Number(details.ceilingHeightM) : undefined,
-        attendeeEstimate: details.attendeeEstimate != null ? Number(details.attendeeEstimate) : undefined,
-        usageHours: details.usageHours as string | undefined,
-        greenRooms: u.green_rooms as UsageRecord['greenRooms'],
-        equipment: u.equipment as string[] | undefined,
+        id: v.id,
+        name: v.name,
+        address: v.address,
+        region: v.region,
+        lat: v.lat,
+        lng: v.lng,
+        usageCount: v.usage_count,
+        totalRoomCount: v.total_room_count,
+        practicalInfo: v.practical_info,
+        rooms: (v.rooms ?? []).map((r: any) => ({
+          id: r.id,
+          name: r.name,
+          floor: r.floor,
+          areaSqm: r.area_sqm,
+          ceilingHeightM: r.ceiling_height_m,
+          capacity: {
+            theater: r.capacity_theater,
+            school: r.capacity_school,
+            banquet: r.capacity_banquet,
+            standing: r.capacity_standing,
+          },
+          divisions: r.divisions ?? [],
+          equipment: extra(r).equipment,
+          features: extra(r).features,
+          loadingDock: extra(r).loadingDock,
+          usageCount: r.usage_count,
+          typicalSeatCount: extra(r).typicalSeatCount != null ? Number(extra(r).typicalSeatCount) : undefined,
+          typicalUse: extra(r).typicalUse,
+        })),
+      }
+    })
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const usageRecords: UsageRecord[] = usageResult.data.map((u: any) => {
+      const d = u.details ?? {}
+      return {
+        id: u.id,
+        hotelName: u.hotel_name,
+        hotelId: u.venue_id,
+        roomName: u.room_name,
+        roomId: u.room_id,
+        seminarName: u.seminar_name,
+        date: u.date,
+        year: u.year,
+        sourceFile: u.source_file,
+        floor: d.floor,
+        seatCount: d.seatCount != null ? Number(d.seatCount) : undefined,
+        areaSqm: d.areaSqm != null ? Number(d.areaSqm) : undefined,
+        ceilingHeightM: d.ceilingHeightM != null ? Number(d.ceilingHeightM) : undefined,
+        attendeeEstimate: d.attendeeEstimate != null ? Number(d.attendeeEstimate) : undefined,
+        usageHours: d.usageHours,
+        greenRooms: u.green_rooms,
+        equipment: u.equipment,
       }
     })
 
